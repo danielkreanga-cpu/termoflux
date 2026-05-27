@@ -1015,6 +1015,109 @@ setInterval(async () => {
   }
 }, 30000);
 
+
+// ─── SUPABASE STORAGE ─────────────────────
+// Converte base64 in Blob
+function b64toBlob(b64, mime) {
+  const bytes = atob(b64.split(',')[1]);
+  const arr = new Uint8Array(bytes.length);
+  for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+}
+
+// Carica una foto su Supabase Storage e restituisce l'URL pubblico
+async function uploadPhotoToStorage(base64, filename) {
+  try {
+    const mime = base64.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
+    const blob = b64toBlob(base64, mime);
+    const ext = mime === 'image/png' ? 'png' : 'jpg';
+    const path = filename + '.' + ext;
+
+    const resp = await fetch(
+      SUPABASE_URL + '/storage/v1/object/photos/' + path,
+      {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Content-Type': mime,
+          'x-upsert': 'true'
+        },
+        body: blob
+      }
+    );
+    if (!resp.ok) throw new Error('Upload failed: ' + resp.status);
+    // Return public URL
+    return SUPABASE_URL + '/storage/v1/object/public/photos/' + path;
+  } catch(e) {
+    console.warn('Photo upload failed:', e);
+    return null; // fallback to base64
+  }
+}
+
+// Carica tutte le foto in background e aggiorna gli URL
+async function uploadAllPhotos(interventionId) {
+  const timestamp = Date.now();
+  let updated = false;
+
+  // Upload zone photos
+  for (const zoneIdx of Object.keys(allPhotos)) {
+    const photos = allPhotos[zoneIdx];
+    for (let pi = 0; pi < photos.length; pi++) {
+      const photo = photos[pi];
+      if (photo.startsWith('data:')) {
+        // Still base64 — upload it
+        const filename = `${interventionId}/zone_${zoneIdx}_${pi}_${timestamp}`;
+        const url = await uploadPhotoToStorage(photo, filename);
+        if (url) {
+          allPhotos[zoneIdx][pi] = url;
+          updated = true;
+        }
+      }
+    }
+  }
+
+  // Upload subpoint photos
+  for (const zoneIdx of Object.keys(zoneSubpoints)) {
+    const subpoints = zoneSubpoints[zoneIdx];
+    for (let si = 0; si < subpoints.length; si++) {
+      const sp = subpoints[si];
+      if (sp.photos) {
+        for (let pi = 0; pi < sp.photos.length; pi++) {
+          const photo = sp.photos[pi];
+          if (photo && photo.startsWith('data:')) {
+            const filename = `${interventionId}/sub_${zoneIdx}_${si}_${pi}_${timestamp}`;
+            const url = await uploadPhotoToStorage(photo, filename);
+            if (url) {
+              zoneSubpoints[zoneIdx][si].photos[pi] = url;
+              updated = true;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Upload location photos
+  if (intervention.locationPhotos) {
+    for (let pi = 0; pi < intervention.locationPhotos.length; pi++) {
+      const photo = intervention.locationPhotos[pi];
+      if (photo && photo.startsWith('data:')) {
+        const filename = `${interventionId}/location_${pi}_${timestamp}`;
+        const url = await uploadPhotoToStorage(photo, filename);
+        if (url) {
+          intervention.locationPhotos[pi] = url;
+          updated = true;
+        }
+      }
+    }
+  }
+
+  if (updated) {
+    saveState(); // aggiorna localStorage con URL
+  }
+  return updated;
+}
 // ─── STATE ────────────────────────────────
 let currentType = 'termografia';
 let timerInterval = null;
@@ -2232,9 +2335,14 @@ function finishIntervention() {
   const duration = stopTimer();
   const totalPhotos = Object.values(allPhotos).reduce((sum, arr) => sum + arr.length, 0);
 
-  // Salva su Supabase e nei recenti locali
-  saveToSupabase('bozza').then(ok => {
-    if (ok) showToast('✓ Salvato su cloud');
+  // Carica foto su Storage poi salva su Supabase
+  const supId = intervention.supabaseId || ('tmp_' + Date.now());
+  if (!intervention.supabaseId) intervention.supabaseId = supId;
+  showToast('⟳ Caricamento foto...');
+  uploadAllPhotos(supId).then(() => {
+    saveToSupabase('bozza').then(ok => {
+      if (ok) showToast('✓ Salvato su cloud con foto');
+    });
   });
   saveToRecents('bozza');
   clearSave();
