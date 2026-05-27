@@ -463,7 +463,17 @@ body {
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
       <div class="home-sec-title" style="margin-bottom:0;">Recenti</div>
     </div>
-    <div id="recentList"><div style="font-size:13px;color:var(--muted);padding:12px 0;">Nessun intervento recente</div></div>
+    <div id="recentList"><div class="recent-item" onclick="openRecent('946993ae-f2df-41c8-88fa-2e7e7e34cd19', true)" style="cursor:pointer;">
+      <div class="recent-dot" style="background:var(--orange)"></div>
+      <div class="recent-info">
+        <div class="recent-title">Lkxksksks · Uwueuru</div>
+        <div class="recent-sub">INFILTRAZIONI · 27/05/2026</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+        <div class="recent-status status-progress">⏱ In corso</div>
+        <div style="font-size:14px;color:var(--muted2);">›</div>
+      </div>
+    </div></div>
     <button id="seeAllBtn" onclick="toggleAllRecents()" style="display:none;width:100%;margin-top:8px;padding:11px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;align-items:center;justify-content:center;">
       Vedi tutte le indagini →
     </button>
@@ -2335,25 +2345,32 @@ function finishIntervention() {
   const duration = stopTimer();
   const totalPhotos = Object.values(allPhotos).reduce((sum, arr) => sum + arr.length, 0);
 
-  // Carica foto su Storage poi salva su Supabase
-  const supId = intervention.supabaseId || ('tmp_' + Date.now());
-  if (!intervention.supabaseId) intervention.supabaseId = supId;
-  showToast('⟳ Caricamento foto...');
-  uploadAllPhotos(supId).then(() => {
-    saveToSupabase('bozza').then(ok => {
-      if (ok) showToast('✓ Salvato su cloud con foto');
-    });
-  });
-  saveToRecents('bozza');
-  clearSave();
-
+  // Vai subito alla schermata sommario
   document.getElementById('summaryClient').textContent = intervention.client || 'Intervento completato';
   document.getElementById('summaryAddress').textContent = intervention.address || '';
   document.getElementById('summaryTime').textContent = duration;
   document.getElementById('summaryPhotos').textContent = totalPhotos;
   document.getElementById('summaryZones').textContent = zones.length;
-
   goScreen('screen-summary');
+
+  // Salva in background (non blocca la UI)
+  saveToRecents('bozza');
+  clearSave();
+  const supId = intervention.supabaseId || ('int_' + Date.now());
+  if (!intervention.supabaseId) intervention.supabaseId = supId;
+
+  setTimeout(async () => {
+    try {
+      showToast('⟳ Salvataggio in corso...');
+      await uploadAllPhotos(supId);
+      const ok = await saveToSupabase('bozza');
+      if (ok) showToast('✓ Salvato su cloud');
+      else showToast('⚠ Salvato in locale');
+    } catch(e) {
+      console.warn('Background save failed:', e);
+      showToast('⚠ Salvato in locale');
+    }
+  }, 500);
 }
 
 function goToReport() {
