@@ -917,6 +917,105 @@ body {
   </div>
 </div>
 
+
+// ─── SUPABASE CONFIG ──────────────────────
+const SUPABASE_URL = 'https://iumktqcizpmqsbnpmbwn.supabase.co';
+const SUPABASE_KEY = 
+'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1bWt0cWNpenBtcXNibnBtYnduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4OTU3NzUsImV4cCI6MjA5NTQ3MTc3NX0.KYUQbaBx2kGRQ5OaT8LG0sMN0kMGYDO1IJnxF5LeFBc';
+
+async function sbFetch(path, method = 'GET', body = null) {
+  const opts = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Prefer': method === 'POST' ? 'return=representation' : ''
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const resp = await fetch(SUPABASE_URL + '/rest/v1/' + path, opts);
+  if (!resp.ok) throw new Error('Supabase error: ' + resp.status);
+  return resp.json();
+}
+
+// Salva o aggiorna intervento su Supabase
+async function saveToSupabase(status) {
+  try {
+    const data = {
+      client: intervention.client || '',
+      committente: intervention.committente || '',
+      address: intervention.address || '',
+      type: currentType,
+      status: status,
+      date_intervento: new Date().toLocaleDateString('it-IT'),
+      start_time: intervention.startTime || '',
+      end_time: new Date().toLocaleTimeString('it-IT', {hour:'2-digit', 
+minute:'2-digit'}),
+      build_type: intervention.buildType || '',
+      problem: intervention.problem || '',
+      context: intervention.context || '',
+      weather: intervention.weather || '',
+      timer_seconds: timerSeconds,
+      zones: zones,
+      zone_notes: zoneNotes,
+      zone_subpoints: zoneSubpoints,
+      equip_list: intervention.equipList || [],
+      location_photos: intervention.locationPhotos || [],
+      all_photos: allPhotos,
+      updated_at: new Date().toISOString()
+    };
+
+    const supabaseId = intervention.supabaseId;
+    if (supabaseId) {
+      // Aggiorna esistente
+      await sbFetch('interventi?id=eq.' + supabaseId, 'PATCH', data);
+    } else {
+      // Crea nuovo
+      const result = await sbFetch('interventi', 'POST', data);
+      if (result &amp;&amp; result[0]) {
+        intervention.supabaseId = result[0].id;
+        saveState(); // salva l'ID nel localStorage
+      }
+    }
+    return true;
+  } catch(e) {
+    console.warn('Supabase save failed:', e);
+    return false;
+  }
+}
+
+// Carica tutti gli interventi da Supabase
+async function loadFromSupabase() {
+  try {
+    const data = await 
+sbFetch('interventi?order=updated_at.desc&amp;limit=50');
+    return data || [];
+  } catch(e) {
+    console.warn('Supabase load failed:', e);
+    return [];
+  }
+}
+
+// Carica un intervento specifico da Supabase
+async function loadInterventoById(id) {
+  try {
+    const data = await sbFetch('interventi?id=eq.' + id);
+    return data &amp;&amp; data[0] ? data[0] : null;
+  } catch(e) {
+    console.warn('Supabase load failed:', e);
+    return null;
+  }
+}
+
+// Salva automaticamente su Supabase ogni 30 secondi durante intervento 
+attivo
+setInterval(async () =&gt; {
+  if (intervention &amp;&amp; intervention.client) {
+    await saveToSupabase(intervention.supabaseId ? 'bozza' : 'bozza');
+  }
+}, 30000);
+
 <script>
 // ─── STATE ────────────────────────────────
 let currentType = 'termografia';
@@ -1226,10 +1325,115 @@ function renderRecents(showAll = false) {
   }
 }
 
-let showingAllRecents = false;
-function toggleAllRecents() {
-  showingAllRecents = !showingAllRecents;
-  renderRecents(showingAllRecents);
+async function renderRecents(showAll = false) {
+  const list = document.getElementById('recentList');
+  if (!list) return;
+
+  list.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:8px 0;">⟳ Caricamento...</div>';
+
+  // Try Supabase first, fallback to localStorage
+  let recents = [];
+  try {
+    const data = await loadFromSupabase();
+    if (data && data.length) {
+      recents = data.map(r => ({
+        id: r.id,
+        client: r.client,
+        committente: r.committente,
+        address: r.address,
+        type: r.type,
+        date: r.date_intervento || new Date(r.updated_at).toLocaleDateString('it-IT'),
+        status: r.status,
+        fromSupabase: true
+      }));
+    }
+  } catch(e) {}
+
+  // Merge with localStorage recents if Supabase returned nothing
+  if (!recents.length) {
+    try {
+      const local = JSON.parse(localStorage.getItem(RECENTS_KEY) || '[]');
+      recents = local.filter(r => r.id !== 'draft' && r.status !== 'draft');
+    } catch(e) {}
+  }
+
+  if (!recents.length) {
+    list.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:12px 0;">Nessun intervento recente</div>';
+    const btn = document.getElementById('seeAllBtn');
+    if (btn) btn.style.display = 'none';
+    return;
+  }
+
+  const toShow = showAll ? recents : recents.slice(0, 4);
+  list.innerHTML = toShow.map(r => {
+    const isProgress = r.status === 'bozza';
+    const dot = isProgress ? 'var(--orange)' : 'var(--teal)';
+    const statusLabel = isProgress ? '⏱ In corso' : '✓ PDF';
+    const statusClass = isProgress ? 'status-progress' : 'status-done';
+    return `<div class="recent-item" onclick="openRecent('${r.id}', ${r.fromSupabase ? 'true' : 'false'})" style="cursor:pointer;">
+      <div class="recent-dot" style="background:${dot}"></div>
+      <div class="recent-info">
+        <div class="recent-title">${r.client}${r.address?' · '+r.address:''}</div>
+        <div class="recent-sub">${TYPE_SHORT[r.type]||r.type} · ${r.date}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+        <div class="recent-status ${statusClass}">${statusLabel}</div>
+        <div style="font-size:14px;color:var(--muted2);">›</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const seeAll = document.getElementById('seeAllBtn');
+  if (seeAll) {
+    if (!showAll && recents.length > 4) {
+      seeAll.style.display = 'flex';
+      seeAll.textContent = 'Vedi tutte le ' + recents.length + ' indagini →';
+    } else if (showAll && recents.length > 4) {
+      seeAll.style.display = 'flex';
+      seeAll.textContent = '↑ Mostra meno';
+    } else {
+      seeAll.style.display = 'none';
+    }
+  }
+}
+
+async function openRecent(id, fromSupabase = false) {
+  goScreen('screen-recent-detail');
+  document.getElementById('recentDetailContent').innerHTML =
+    '<div style="font-size:12px;color:var(--muted);padding:20px;text-align:center;">⟳ Caricamento dati...</div>';
+
+  let r = null;
+  if (fromSupabase) {
+    r = await loadInterventoById(id);
+    if (r) {
+      // Map Supabase fields to app format
+      r.snapshot = {
+        currentType: r.type,
+        zones: r.zones || [],
+        zoneNotes: r.zone_notes || {},
+        zoneSubpoints: r.zone_subpoints || {},
+        allPhotos: r.all_photos || {},
+        intervention: {
+          client: r.client, committente: r.committente,
+          address: r.address, buildType: r.build_type,
+          problem: r.problem, context: r.context,
+          weather: r.weather, startTime: r.start_time,
+          equipList: r.equip_list || [],
+          locationPhotos: r.location_photos || [],
+          supabaseId: r.id
+        },
+        timerSeconds: r.timer_seconds || 0
+      };
+      r.date = r.date_intervento || new Date(r.updated_at).toLocaleDateString('it-IT');
+    }
+  } else {
+    let recents = [];
+    try { recents = JSON.parse(localStorage.getItem(RECENTS_KEY) || '[]'); } catch(e) {}
+    r = recents.find(x => String(x.id) === String(id));
+  }
+
+  if (!r) { document.getElementById('recentDetailContent').innerHTML = '<div style="padding:20px;color:var(--muted);">Intervento non trovato</div>'; return; }
+  renderRecentDetail(r);
 }
 
 function openRecent(id) {
@@ -1306,6 +1510,12 @@ function continueFromRecent(id) {
   renderZones();
   goScreen('screen-field');
   showToast('✦ Intervento riaperto');
+}
+
+let showingAllRecents = false;
+function toggleAllRecents() {
+  showingAllRecents = !showingAllRecents;
+  renderRecents(showingAllRecents);
 }
 
 function generateFromRecent(id) {
@@ -2024,7 +2234,10 @@ function finishIntervention() {
   const duration = stopTimer();
   const totalPhotos = Object.values(allPhotos).reduce((sum, arr) => sum + arr.length, 0);
 
-  // Salva nei recenti come bozza
+  // Salva su Supabase e nei recenti locali
+  saveToSupabase('bozza').then(ok => {
+    if (ok) showToast('✓ Salvato su cloud');
+  });
   saveToRecents('bozza');
   clearSave();
 
@@ -2454,6 +2667,7 @@ generateReport();
 
   // Aggiorna stato nei recenti a "done"
   saveToRecents('done');
+  saveToSupabase('done');
 
   // Inietta il report dentro screen-report (funziona su iPhone/Safari/Claude Code)
   const reportDiv = document.getElementById('reportContent');
