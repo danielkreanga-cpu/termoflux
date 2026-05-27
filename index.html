@@ -1159,7 +1159,7 @@ function saveDraft() {
     recents.unshift(entry);
     recents = recents.slice(0, 20);
     localStorage.setItem(RECENTS_KEY, JSON.stringify(recents));
-    loadRecents();
+    try { loadRecents(); } catch(e) {}
 
     // Mostra subito il banner "Intervento in corso" in home
     const banner = document.getElementById('resumeBanner');
@@ -1743,12 +1743,6 @@ function newIntervention() {
 
 // ─── STEP NAVIGATION ──────────────────────
 function goStep2() {
-  const client = document.getElementById('clientInput').value;
-  const address = document.getElementById('addressInput').value;
-  if (!client.trim() && !document.getElementById('committente').value.trim()) {
-    showToast('⚠ Inserisci almeno il cliente o il committente'); return;
-  }
-  if (!address.trim()) { showToast('⚠ Inserisci l\'indirizzo'); return; }
   saveDraft();
   goScreen('screen-step2');
 }
@@ -1758,13 +1752,10 @@ function goStep3() {
   customEquip = [];
   const db = EQUIP_DB[currentType] || [];
   db.forEach(e => { selectedEquip[e.id] = e.checked; });
-
   document.getElementById('equipTypeLabel').textContent =
     { termografia:'termografia', infiltrazioni:'diagnostica infiltrazioni', perdite:'ricerca perdite impianti', videoispezione:'videoispezione condotte', mappatura:'mappatura impianti' }[currentType];
-
   document.getElementById('thermoParams').style.display = currentType === 'termografia' ? 'block' : 'none';
   document.getElementById('gasParams').style.display = ['perdite','infiltrazioni'].includes(currentType) ? 'block' : 'none';
-
   saveDraft();
   renderEquip();
   goScreen('screen-step3');
