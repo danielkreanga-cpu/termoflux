@@ -1899,15 +1899,15 @@ function selectType(el, type) {
 
 // ─── START INTERVENTION ───────────────────
 function startIntervention() {
-  const client = document.getElementById('clientInput').value || 'Cliente';
-  const address = document.getElementById('addressInput').value || 'Indirizzo non specificato';
-  const committente = document.getElementById('committente').value || '';
-  const noteIniziali = document.getElementById('noteIniziali').value || '';
+  const client = document.getElementById('clientInput')?.value || 'Cliente';
+  const address = document.getElementById('addressInput')?.value || 'Indirizzo non specificato';
+  const committente = document.getElementById('committente')?.value || '';
+  const noteIniziali = document.getElementById('noteIniziali')?.value || '';
   const weather = '';
   const temp = '';
-  const buildType = document.getElementById('buildTypeInput').value;
-  const problem = document.getElementById('problemInput').value;
-  const context = document.getElementById('contextInput').value;
+  const buildType = document.getElementById('buildTypeInput')?.value || '';
+  const problem = document.getElementById('problemInput')?.value || '';
+  const context = document.getElementById('contextInput')?.value || '';
 
   // Collect selected equipment
   const db = [...(EQUIP_DB[currentType] || []), ...customEquip];
@@ -1921,11 +1921,12 @@ function startIntervention() {
 
   const typeLabels = { termografia: 'TERMOGRAFIA', infiltrazioni: 'DIAGNOSTICA INFILTRAZIONI', perdite: 'RICERCA PERDITE IMPIANTI', videoispezione: 'VIDEOISPEZIONE CONDOTTE', mappatura: 'MAPPATURA IMPIANTI' };
 
-  document.getElementById('fieldClientName').textContent = client;
-  document.getElementById('fieldTypeBadge').textContent = '⚡ ' + typeLabels[currentType];
-  document.getElementById('fieldClientDisplay').textContent = client;
-  document.getElementById('fieldTypeDisplay').textContent = typeLabels[currentType];
-  document.getElementById('fieldAddressDisplay').textContent = address;
+  const _s = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+  _s('fieldClientName', client);
+  _s('fieldTypeBadge', '⚡ ' + typeLabels[currentType]);
+  _s('fieldClientDisplay', client);
+  _s('fieldTypeDisplay', typeLabels[currentType]);
+  _s('fieldAddressDisplay', address);
   document.getElementById('fieldWeatherDisplay').textContent = weather;
 
   zones = [...DEFAULT_ZONES[currentType]].map(n => n);
