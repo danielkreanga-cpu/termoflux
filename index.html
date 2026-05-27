@@ -898,34 +898,28 @@ body {
 
   <!-- ACTION BAR REPORT -->
   <div style="display:flex;gap:8px;padding:10px 16px;background:var(--bg3);border-bottom:1px solid var(--border);flex-shrink:0;">
-    <button onclick="goScreen('screen-field')" style="flex:1;padding:9px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
-      ✏️ Continua
-    </button>
-    <button onclick="refreshReport()" style="flex:1;padding:9px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--teal);font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+    <button onclick="refreshReport()" style="flex:1;padding:9px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--teal);font-size:12px;font-weight:600;cursor:pointer;">
       🔄 Rigenera
     </button>
-    <button onclick="savePDF()" style="flex:1;padding:9px;background:var(--teal);border:none;border-radius:var(--radius-sm);color:#000;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
-      ↑ Condividi
+    <button onclick="goScreen('screen-field')" style="flex:1;padding:9px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;">
+      ✏️ Modifica
     </button>
   </div>
 
   <!-- ISTRUZIONE iOS -->
   <div class="ios-instruction" style="background:#1a1a0a;border-bottom:1px solid #333;padding:8px 16px;text-align:center;font-size:11px;color:#888;">
-    📱 iPhone: tocca <strong style="color:#f5a623;">↑ Condividi</strong> → <strong style="color:#f5a623;">Salva su File</strong> oppure <strong style="color:#f5a623;">Stampa</strong> per ottenere il PDF
+    📱 iPhone: tocca <strong style="color:#f5a623;">↑ Condividi</strong> → <strong style="color:#f5a623;">Salva su File</strong> oppure <strong style="color:#f5a623;">Stampa</strong>
   </div>
 
-  <div class="scroll-content" id="reportContent" style="background:white;padding:16px;font-family:'Segoe UI',sans-serif;color:#111;padding-bottom:100px;"></div>
+  <div class="scroll-content" id="reportContent" style="background:white;padding:8px;font-family:'Segoe UI',sans-serif;color:#111;padding-bottom:120px;"></div>
 
   <!-- BOTTOM BAR REPORT -->
-  <div class="bottom-bar" style="gap:8px;padding:12px 16px 28px;">
-    <button onclick="goScreen('screen-field')" style="padding:13px 14px;background:var(--bg3);color:var(--muted);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;flex-shrink:0;">
-      ← Indietro
+  <div class="bottom-bar" style="padding:12px 16px 28px;">
+    <button id="reportBackBtn" onclick="goScreen('screen-home')" style="display:none;padding:14px 18px;background:var(--bg3);color:var(--muted);border:1px solid var(--border);border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;flex-shrink:0;">
+      ← 
     </button>
-    <button onclick="shareWhatsApp()" style="flex:1;padding:13px;background:#25D366;color:white;border:none;border-radius:var(--radius);font-size:13px;font-weight:700;cursor:pointer;">
-      📲 WhatsApp
-    </button>
-    <button onclick="shareEmail()" style="flex:1;padding:13px;background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-weight:700;cursor:pointer;">
-      📧 Email
+    <button onclick="shareReportMain()" style="flex:1;padding:14px;background:var(--teal);color:#000;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;cursor:pointer;">
+      ↑ Condividi / PDF
     </button>
   </div>
 </div>
@@ -2397,7 +2391,7 @@ function goToReport() {
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', sans-serif; background: #f0f0ee; padding: 20px; }
-.doc { background: white; max-width: 100%; margin: 0; padding: 16px; }
+.doc { background: white; max-width: 100%; margin: 0; padding: 10px 8px; }
 @media (min-width: 600px) { .doc { max-width: 800px; margin: 0 auto; padding: 32px; border-radius: 12px; box-shadow: 0 2px 20px rgba(0,0,0,0.08); } }
 .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 2px solid #111; }
 .logo-area .logo-name { font-size: 22px; font-weight: 900; color: #111; }
@@ -2415,8 +2409,9 @@ h1 { font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacin
 .zone-block { margin-bottom: 18px; background: #fafaf8; border-radius: 8px; padding: 14px; border-left: 3px solid #111; page-break-inside: avoid; }
 .zone-name { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
 .zone-note { font-size: 13px; color: #444; line-height: 1.7; }
-.photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; page-break-inside: avoid; }
-.photo-grid img { width: 100%; height: 200px; object-fit: cover; border-radius: 6px; border: 1px solid #eee; display: block; }
+.photo-hero { width: 100%; height: 240px; object-fit: cover; border-radius: 8px; border: 1px solid #eee; display: block; margin-top: 8px; page-break-inside: avoid; }
+.photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; page-break-inside: avoid; }
+.photo-grid img { width: 100%; height: 80px; object-fit: cover; border-radius: 5px; border: 1px solid #eee; display: block; }
 @media print {
   body { background: white; padding: 0; }
   .doc { box-shadow: none; border-radius: 0; padding: 20px; }
@@ -2857,18 +2852,15 @@ function savePDF() {
   }
 }
 
-function shareReport() {
-  // Web Share API — funziona su iPhone con Safari
-  if (navigator.share) {
-    navigator.share({
-      title: 'Report Termoflux — ' + (intervention.client || ''),
-      text: 'Relazione tecnica ' + (intervention.address || '') + ' del ' + new Date().toLocaleDateString('it-IT'),
-      url: window.location.href
-    }).catch(() => savePDF());
-  } else {
-    savePDF();
-  }
+function shareReportMain() {
+  // Show back button
+  const backBtn = document.getElementById('reportBackBtn');
+  if (backBtn) backBtn.style.display = 'block';
+  // Share
+  savePDF();
 }
+
+function shareReport() { shareReportMain(); }
 
 function shareWhatsApp() {
   const text = encodeURIComponent(
