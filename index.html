@@ -2,7 +2,7 @@
 <html lang="it"><head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ThermoTrace — Modalità Campo</title>
 <link href="index_files/css2.css" rel="stylesheet">
 <style>
@@ -417,7 +417,7 @@ body {
       </div>
     </div>
     <div class="home-greeting">Ciao, <span>Daniel</span> 👋</div>
-    <div class="home-date" id="homeDate">Mercoledì 27 Maggio 2026</div>
+    <div class="home-date" id="homeDate">Martedì 19 Maggio 2026</div>
   </div>
 
   <div class="home-stats">
@@ -460,13 +460,9 @@ body {
   </div>
 
   <div class="home-section" style="padding-top: 0;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <div class="home-sec-title" style="margin-bottom:0;">Recenti</div>
-    </div>
-    <div id="recentList"></div>
-    <button id="seeAllBtn" onclick="toggleAllRecents()" style="display:none;width:100%;margin-top:8px;padding:11px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;align-items:center;justify-content:center;">
-      Vedi tutte le indagini →
-    </button>
+    <div class="home-sec-title">Recenti</div>
+    <div id="recentList"><div style="font-size:13px;color:var(--muted);padding:12px 0;">Nessun intervento recente</div></div>
+    <button id="seeAllBtn" onclick="toggleAllRecents()" style="display:none;width:100%;margin-top:8px;padding:11px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;">Vedi tutte le indagini →</button>
   </div>
 </div>
 
@@ -860,7 +856,7 @@ body {
 </div>
 
 <!-- ═══════════════════════════════
-     SCREEN: DETTAGLIO INDAGINE
+     SCREEN: DETTAGLIO INDAGINE (RECENTI)
 ═══════════════════════════════ -->
 <div class="screen" id="screen-recent-detail">
   <div class="topbar">
@@ -870,7 +866,7 @@ body {
       <div class="topbar-sub">DETTAGLIO</div>
     </div>
   </div>
-  <div class="scroll-content" id="recentDetailContent" style="padding:20px;"></div>
+  <div class="scroll-content" id="recentDetailContent"></div>
 </div>
 
 <!-- ═══════════════════════════════
@@ -888,231 +884,40 @@ body {
 
   <!-- ACTION BAR REPORT -->
   <div style="display:flex;gap:8px;padding:10px 16px;background:var(--bg3);border-bottom:1px solid var(--border);flex-shrink:0;">
-    <button onclick="refreshReport()" style="flex:1;padding:9px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--teal);font-size:12px;font-weight:600;cursor:pointer;">
+    <button onclick="goScreen('screen-field')" style="flex:1;padding:9px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+      ✏️ Continua
+    </button>
+    <button onclick="refreshReport()" style="flex:1;padding:9px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--teal);font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
       🔄 Rigenera
     </button>
-    <button onclick="goScreen('screen-field')" style="flex:1;padding:9px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;">
-      ✏️ Modifica
+    <button onclick="savePDF()" style="flex:1;padding:9px;background:var(--teal);border:none;border-radius:var(--radius-sm);color:#000;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+      ↑ Condividi
     </button>
   </div>
 
   <!-- ISTRUZIONE iOS -->
   <div class="ios-instruction" style="background:#1a1a0a;border-bottom:1px solid #333;padding:8px 16px;text-align:center;font-size:11px;color:#888;">
-    📱 iPhone: tocca <strong style="color:#f5a623;">↑ Condividi</strong> → <strong style="color:#f5a623;">Salva su File</strong> oppure <strong style="color:#f5a623;">Stampa</strong>
+    📱 iPhone: tocca <strong style="color:#f5a623;">↑ Condividi</strong> → <strong style="color:#f5a623;">Salva su File</strong> oppure <strong style="color:#f5a623;">Stampa</strong> per ottenere il PDF
   </div>
 
-  <div class="scroll-content" id="reportContent" style="background:white;padding:0;font-family:'Segoe UI',sans-serif;color:#111;padding-bottom:120px;"></div>
+  <div class="scroll-content" id="reportContent" style="background:white;padding:24px;font-family:'Segoe UI',sans-serif;color:#111;"></div>
 
   <!-- BOTTOM BAR REPORT -->
-  <div class="bottom-bar" style="padding:12px 16px 28px;">
-    <button id="reportBackBtn" onclick="goScreen('screen-home')" style="display:none;padding:14px 18px;background:var(--bg3);color:var(--muted);border:1px solid var(--border);border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;flex-shrink:0;">
-      ← 
+  <div class="bottom-bar" style="gap:8px;">
+    <button onclick="shareWhatsApp()" style="flex:1;padding:14px;background:#25D366;color:white;border:none;border-radius:var(--radius);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+      📲 WhatsApp
     </button>
-    <button onclick="shareReportMain()" style="flex:1;padding:14px;background:var(--teal);color:#000;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;cursor:pointer;">
-      ↑ Condividi / PDF
+    <button onclick="shareEmail()" style="flex:1;padding:14px;background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+      📧 Email
     </button>
   </div>
 </div>
 
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
 <script>
-// ─── SUPABASE CONFIG ──────────────────────
-const SUPABASE_URL = 'https://iumktqcizpmqsbnpmbwn.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1bWt0cWNpenBtcXNibnBtYnduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4OTU3NzUsImV4cCI6MjA5NTQ3MTc3NX0.KYUQbaBx2kGRQ5OaT8LG0sMN0kMGYDO1IJnxF5LeFBc';
-
-async function sbFetch(path, method = 'GET', body = null) {
-  const opts = {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': SUPABASE_KEY,
-      'Authorization': 'Bearer ' + SUPABASE_KEY,
-      'Prefer': method === 'POST' ? 'return=representation' : ''
-    }
-  };
-  if (body) opts.body = JSON.stringify(body);
-  const resp = await fetch(SUPABASE_URL + '/rest/v1/' + path, opts);
-  if (!resp.ok) throw new Error('Supabase error: ' + resp.status);
-  return resp.json();
-}
-
-// Salva o aggiorna intervento su Supabase
-async function saveToSupabase(status) {
-  try {
-    const data = {
-      client: intervention.client || '',
-      committente: intervention.committente || '',
-      address: intervention.address || '',
-      type: currentType,
-      status: status,
-      date_intervento: new Date().toLocaleDateString('it-IT'),
-      start_time: intervention.startTime || '',
-      end_time: new Date().toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'}),
-      build_type: intervention.buildType || '',
-      problem: intervention.problem || '',
-      context: intervention.context || '',
-      weather: intervention.weather || '',
-      timer_seconds: timerSeconds,
-      zones: zones,
-      zone_notes: zoneNotes,
-      zone_subpoints: zoneSubpoints,
-      equip_list: intervention.equipList || [],
-      location_photos: intervention.locationPhotos || [],
-      all_photos: allPhotos,
-      updated_at: new Date().toISOString()
-    };
-
-    const supabaseId = intervention.supabaseId;
-    if (supabaseId) {
-      // Aggiorna esistente
-      await sbFetch('interventi?id=eq.' + supabaseId, 'PATCH', data);
-    } else {
-      // Crea nuovo
-      const result = await sbFetch('interventi', 'POST', data);
-      if (result && result[0]) {
-        intervention.supabaseId = result[0].id;
-        saveState(); // salva l'ID nel localStorage
-      }
-    }
-    return true;
-  } catch(e) {
-    console.warn('Supabase save failed:', e);
-    return false;
-  }
-}
-
-// Carica tutti gli interventi da Supabase
-async function loadFromSupabase() {
-  try {
-    const data = await sbFetch('interventi?order=updated_at.desc&limit=50');
-    return data || [];
-  } catch(e) {
-    console.warn('Supabase load failed:', e);
-    return [];
-  }
-}
-
-// Carica un intervento specifico da Supabase
-async function loadInterventoById(id) {
-  try {
-    const data = await sbFetch('interventi?id=eq.' + id);
-    return data && data[0] ? data[0] : null;
-  } catch(e) {
-    console.warn('Supabase load failed:', e);
-    return null;
-  }
-}
-
-// Salva automaticamente su Supabase ogni 30 secondi durante intervento attivo
-setInterval(async () => {
-  if (intervention && intervention.client) {
-    await saveToSupabase(intervention.supabaseId ? 'bozza' : 'bozza');
-  }
-}, 30000);
-
-
-// ─── SUPABASE STORAGE ─────────────────────
-// Converte base64 in Blob
-function b64toBlob(b64, mime) {
-  const bytes = atob(b64.split(',')[1]);
-  const arr = new Uint8Array(bytes.length);
-  for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
-  return new Blob([arr], { type: mime });
-}
-
-// Carica una foto su Supabase Storage e restituisce l'URL pubblico
-async function uploadPhotoToStorage(base64, filename) {
-  try {
-    const mime = base64.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
-    const blob = b64toBlob(base64, mime);
-    const ext = mime === 'image/png' ? 'png' : 'jpg';
-    const path = filename + '.' + ext;
-
-    const resp = await fetch(
-      SUPABASE_URL + '/storage/v1/object/photos/' + path,
-      {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_KEY,
-          'Content-Type': mime,
-          'x-upsert': 'true'
-        },
-        body: blob
-      }
-    );
-    if (!resp.ok) throw new Error('Upload failed: ' + resp.status);
-    // Return public URL
-    return SUPABASE_URL + '/storage/v1/object/public/photos/' + path;
-  } catch(e) {
-    console.warn('Photo upload failed:', e);
-    return null; // fallback to base64
-  }
-}
-
-// Carica tutte le foto in background e aggiorna gli URL
-async function uploadAllPhotos(interventionId) {
-  const timestamp = Date.now();
-  let updated = false;
-
-  // Upload zone photos
-  for (const zoneIdx of Object.keys(allPhotos)) {
-    const photos = allPhotos[zoneIdx];
-    for (let pi = 0; pi < photos.length; pi++) {
-      const photo = photos[pi];
-      if (photo.startsWith('data:')) {
-        // Still base64 — upload it
-        const filename = `${interventionId}/zone_${zoneIdx}_${pi}_${timestamp}`;
-        const url = await uploadPhotoToStorage(photo, filename);
-        if (url) {
-          allPhotos[zoneIdx][pi] = url;
-          updated = true;
-        }
-      }
-    }
-  }
-
-  // Upload subpoint photos
-  for (const zoneIdx of Object.keys(zoneSubpoints)) {
-    const subpoints = zoneSubpoints[zoneIdx];
-    for (let si = 0; si < subpoints.length; si++) {
-      const sp = subpoints[si];
-      if (sp.photos) {
-        for (let pi = 0; pi < sp.photos.length; pi++) {
-          const photo = sp.photos[pi];
-          if (photo && photo.startsWith('data:')) {
-            const filename = `${interventionId}/sub_${zoneIdx}_${si}_${pi}_${timestamp}`;
-            const url = await uploadPhotoToStorage(photo, filename);
-            if (url) {
-              zoneSubpoints[zoneIdx][si].photos[pi] = url;
-              updated = true;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // Upload location photos
-  if (intervention.locationPhotos) {
-    for (let pi = 0; pi < intervention.locationPhotos.length; pi++) {
-      const photo = intervention.locationPhotos[pi];
-      if (photo && photo.startsWith('data:')) {
-        const filename = `${interventionId}/location_${pi}_${timestamp}`;
-        const url = await uploadPhotoToStorage(photo, filename);
-        if (url) {
-          intervention.locationPhotos[pi] = url;
-          updated = true;
-        }
-      }
-    }
-  }
-
-  if (updated) {
-    saveState(); // aggiorna localStorage con URL
-  }
-  return updated;
-}
-// ─── STATE ────────────────────────────────
+// ===== INIZIO: STATO E SALVATAGGIO =====
 let currentType = 'termografia';
 let timerInterval = null;
 let timerStart = null;
@@ -1159,7 +964,7 @@ function saveDraft() {
     recents.unshift(entry);
     recents = recents.slice(0, 20);
     localStorage.setItem(RECENTS_KEY, JSON.stringify(recents));
-    try { loadRecents(); } catch(e) {}
+    renderRecents();
 
     // Mostra subito il banner "Intervento in corso" in home
     const banner = document.getElementById('resumeBanner');
@@ -1291,7 +1096,9 @@ const TYPE_LABELS_FULL = {
   mappatura:      'MAPPATURA IMPIANTI'
 };
 
-// ─── EQUIPMENT DATABASE ───────────────────
+// ===== FINE: STATO E SALVATAGGIO =====
+
+// ===== INIZIO: ATTREZZATURE (DATABASE) =====
 const EQUIP_DB = {
   termografia: [
     { id:'flir',  name:'Termocamera FLIR E85',         desc:'Risoluzione 384×288 · Obiettivo FOL10 · Sensibilità <0,030°C', checked:true  },
@@ -1335,205 +1142,124 @@ let selectedEquip = {};
 let locationPhotos = [];
 let customEquip = [];
 
-// ─── RECENTI ──────────────────────────────
+// ===== FINE: ATTREZZATURE (DATABASE) =====
+
+// ===== INIZIO: RECENTI =====
 const RECENTS_KEY = 'thermotrace_recenti';
 const TYPE_SHORT = { termografia:'TERMOGRAFIA', infiltrazioni:'INFILTRAZIONI', perdite:'RICERCA PERDITE', videoispezione:'VIDEOISPEZIONE', mappatura:'MAPPATURA' };
+let showingAllRecents = false;
 
+function readRecents() {
+  try { return JSON.parse(localStorage.getItem(RECENTS_KEY) || '[]'); } catch(e) { return []; }
+}
+function writeRecents(list) {
+  try { localStorage.setItem(RECENTS_KEY, JSON.stringify(list)); return true; } catch(e) { return false; }
+}
+
+// Salva l'intervento nei recenti con uno snapshot completo (riapribile)
 function saveToRecents(status) {
-  let recents = [];
-  try { recents = JSON.parse(localStorage.getItem(RECENTS_KEY) || '[]'); } catch(e) {}
-  const id = Date.now();
+  let recents = readRecents();
+  if (!intervention.recentId) intervention.recentId = Date.now();
+  const snapshot = { currentType, zones, zoneNotes, zoneSubpoints, intervention, timerSeconds, allPhotos };
   const entry = {
-    id,
+    id: intervention.recentId,
     client: intervention.client || '—',
     committente: intervention.committente || '',
     address: intervention.address || '',
     type: currentType,
     date: new Date().toLocaleDateString('it-IT'),
     status: status,
-    // Salva snapshot completo per riaprire
-    snapshot: {
-      currentType, zones, zoneNotes, zoneSubpoints, intervention,
-      timerSeconds,
-      allPhotos: {} // foto escluse per limite storage — troppo pesanti
-    }
+    snapshot
   };
-  // Prova a salvare anche le foto
-  try {
-    entry.snapshot.allPhotos = allPhotos;
-    const test = JSON.stringify(entry);
-    if (test.length > 4000000) entry.snapshot.allPhotos = {}; // troppo grande, escludi foto
-  } catch(e) { entry.snapshot.allPhotos = {}; }
-
-  recents = recents.filter(r => !(r.client === entry.client && r.type === entry.type && r.date === entry.date));
+  recents = recents.filter(r => String(r.id) !== String(entry.id) && r.id !== 'draft'
+    && !(!r.snapshot && r.client === entry.client && r.type === entry.type && r.date === entry.date));
   recents.unshift(entry);
   recents = recents.slice(0, 20);
-  try { localStorage.setItem(RECENTS_KEY, JSON.stringify(recents)); } catch(e) {
-    // Se troppo grande, riprova senza foto
-    entry.snapshot.allPhotos = {};
+  if (!writeRecents(recents)) {
+    // Troppo grande: riprova senza le foto (solo di questa voce)
+    entry.snapshot = { ...snapshot, allPhotos: {}, zoneSubpoints: JSON.parse(JSON.stringify(zoneSubpoints)) };
+    Object.values(entry.snapshot.zoneSubpoints).forEach(arr => arr.forEach(sp => sp.photos = []));
+    entry.noPhotos = true;
     recents[0] = entry;
-    try { localStorage.setItem(RECENTS_KEY, JSON.stringify(recents)); } catch(e2) {}
+    if (!writeRecents(recents)) { recents = recents.slice(0, 5); writeRecents(recents); }
   }
 }
 
-// Wrapper sincroni per onclick su iOS Safari
-function openRecentItem(id, fromSupabase) {
-  openRecent(id, fromSupabase).catch(e => { showToast('Errore apertura'); console.warn(e); });
-}
-function loadRecents(showAll) {
-  loadRecents(showAll).catch(e => console.warn(e));
-}
-
-async function renderRecents(showAll = false) {
+function renderRecents() {
   const list = document.getElementById('recentList');
   if (!list) return;
-
-  list.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:8px 0;">⟳ Caricamento...</div>';
-
-  // Try Supabase first, fallback to localStorage
-  let recents = [];
-  try {
-    const data = await loadFromSupabase();
-    if (data && data.length) {
-      recents = data.map(r => ({
-        id: r.id,
-        client: r.client,
-        committente: r.committente,
-        address: r.address,
-        type: r.type,
-        date: r.date_intervento || new Date(r.updated_at).toLocaleDateString('it-IT'),
-        status: r.status,
-        fromSupabase: true
-      }));
-    }
-  } catch(e) {}
-
-  // Merge with localStorage recents if Supabase returned nothing
-  if (!recents.length) {
-    try {
-      const local = JSON.parse(localStorage.getItem(RECENTS_KEY) || '[]');
-      recents = local.filter(r => r.id !== 'draft' && r.status !== 'draft');
-    } catch(e) {}
-  }
-
+  const recents = readRecents();
+  const seeAll = document.getElementById('seeAllBtn');
   if (!recents.length) {
     list.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:12px 0;">Nessun intervento recente</div>';
-    const btn = document.getElementById('seeAllBtn');
-    if (btn) btn.style.display = 'none';
+    if (seeAll) seeAll.style.display = 'none';
     return;
   }
-
-  const toShow = showAll ? recents : recents.slice(0, 4);
+  const toShow = showingAllRecents ? recents : recents.slice(0, 4);
   list.innerHTML = toShow.map(r => {
+    const isDraft = r.status === 'draft';
     const isProgress = r.status === 'bozza';
-    const dot = isProgress ? 'var(--orange)' : 'var(--teal)';
-    const statusLabel = isProgress ? '⏱ In corso' : '✓ PDF';
-    const statusClass = isProgress ? 'status-progress' : 'status-done';
-    return `<div class="recent-item" onclick="openRecentItem('${r.id}', ${r.fromSupabase ? 'true' : 'false'})" style="cursor:pointer;">
+    const dot = (isDraft || isProgress) ? 'var(--orange)' : 'var(--teal)';
+    const statusLabel = isDraft ? '✏️ In preparazione' : isProgress ? '⏱ In corso' : 'PDF ✓';
+    const statusClass = (isDraft || isProgress) ? 'status-progress' : 'status-done';
+    const onclick = isDraft ? `onclick="reopenDraft()"` : `onclick="openRecent('${r.id}')"`;
+    return `
+    <div class="recent-item" ${onclick} style="cursor:pointer;${isDraft ? 'border-color:var(--orange);' : ''}">
       <div class="recent-dot" style="background:${dot}"></div>
       <div class="recent-info">
-        <div class="recent-title">${r.client}${r.address?' · '+r.address:''}</div>
+        <div class="recent-title">${r.client}${r.address ? ' · ' + r.address : ''}</div>
         <div class="recent-sub">${TYPE_SHORT[r.type]||r.type} · ${r.date}</div>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
-        <div class="recent-status ${statusClass}">${statusLabel}</div>
-        <div style="font-size:14px;color:var(--muted2);">›</div>
-      </div>
+      <div class="recent-status ${statusClass}">${statusLabel}</div>
+      <div style="font-size:16px;color:var(--muted2);margin-left:6px;">›</div>
     </div>`;
   }).join('');
-
-  const seeAll = document.getElementById('seeAllBtn');
   if (seeAll) {
-    if (!showAll && recents.length > 4) {
-      seeAll.style.display = 'flex';
-      seeAll.textContent = 'Vedi tutte le ' + recents.length + ' indagini →';
-    } else if (showAll && recents.length > 4) {
-      seeAll.style.display = 'flex';
-      seeAll.textContent = '↑ Mostra meno';
-    } else {
-      seeAll.style.display = 'none';
-    }
+    if (recents.length > 4) {
+      seeAll.style.display = 'block';
+      seeAll.textContent = showingAllRecents ? '↑ Mostra meno' : 'Vedi tutte le ' + recents.length + ' indagini →';
+    } else seeAll.style.display = 'none';
   }
 }
 
-async function openRecent(id, fromSupabase = false) {
-  goScreen('screen-recent-detail');
-  document.getElementById('recentDetailContent').innerHTML =
-    '<div style="font-size:12px;color:var(--muted);padding:20px;text-align:center;">⟳ Caricamento dati...</div>';
-
-  let r = null;
-  if (fromSupabase) {
-    r = await loadInterventoById(id);
-    if (r) {
-      // Map Supabase fields to app format
-      r.snapshot = {
-        currentType: r.type,
-        zones: r.zones || [],
-        zoneNotes: r.zone_notes || {},
-        zoneSubpoints: r.zone_subpoints || {},
-        allPhotos: r.all_photos || {},
-        intervention: {
-          client: r.client, committente: r.committente,
-          address: r.address, buildType: r.build_type,
-          problem: r.problem, context: r.context,
-          weather: r.weather, startTime: r.start_time,
-          equipList: r.equip_list || [],
-          locationPhotos: r.location_photos || [],
-          supabaseId: r.id
-        },
-        timerSeconds: r.timer_seconds || 0
-      };
-      r.date = r.date_intervento || new Date(r.updated_at).toLocaleDateString('it-IT');
-    }
-  } else {
-    let recents = [];
-    try { recents = JSON.parse(localStorage.getItem(RECENTS_KEY) || '[]'); } catch(e) {}
-    r = recents.find(x => String(x.id) === String(id));
-  }
-
-  if (!r) { document.getElementById('recentDetailContent').innerHTML = '<div style="padding:20px;color:var(--muted);">Intervento non trovato</div>'; return; }
-  renderRecentDetail(r);
+function toggleAllRecents() {
+  showingAllRecents = !showingAllRecents;
+  renderRecents();
 }
 
-function renderRecentDetail(r) {
-  const el = document.getElementById('recentDetailContent');
-  if (!el) return;
-  document.getElementById('recentDetailTitle').textContent = r.client || 'Intervento';
+function openRecent(id) {
+  const r = readRecents().find(x => String(x.id) === String(id));
+  if (!r) { showToast('Intervento non trovato'); return; }
   const typeLabels = { termografia:'TERMOGRAFIA', infiltrazioni:'DIAGNOSTICA INFILTRAZIONI', perdite:'RICERCA PERDITE IMPIANTI', videoispezione:'VIDEOISPEZIONE CONDOTTE', mappatura:'MAPPATURA IMPIANTI' };
+  const nPhotos = r.snapshot ? Object.values(r.snapshot.allPhotos || {}).reduce((s,a) => s + a.length, 0) : 0;
+  const el = document.getElementById('recentDetailContent');
+  const title = document.getElementById('recentDetailTitle');
+  if (title) title.textContent = r.client || 'Indagine';
   el.innerHTML = `
     <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
-      <div style="font-size:16px;font-weight:700;margin-bottom:4px;">${r.client}</div>
-      ${r.committente ? '<div style="font-size:12px;color:var(--muted);margin-bottom:2px;">Committente: '+r.committente+'</div>' : ''}
-      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">${r.address || ''}</div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:4px;">${r.client}</div>
+      ${r.committente ? `<div style="font-size:12px;color:var(--muted);">Committente: ${r.committente}</div>` : ''}
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">${r.address || ''}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <span style="font-size:11px;background:var(--bg);border:1px solid var(--border2);border-radius:20px;padding:3px 10px;color:var(--muted);">${typeLabels[r.type]||r.type}</span>
         <span style="font-size:11px;background:var(--bg);border:1px solid var(--border2);border-radius:20px;padding:3px 10px;color:var(--muted);">📅 ${r.date}</span>
         <span style="font-size:11px;border-radius:20px;padding:3px 10px;background:${r.status==='done'?'#0a2a1a':'#2a1a0a'};color:${r.status==='done'?'var(--teal)':'var(--orange)'};">${r.status==='done'?'✓ Report generato':'⏱ In corso'}</span>
+        ${r.snapshot ? `<span style="font-size:11px;background:var(--bg);border:1px solid var(--border2);border-radius:20px;padding:3px 10px;color:var(--muted);">📷 ${nPhotos} foto</span>` : ''}
       </div>
+      ${r.noPhotos ? '<div style="font-size:11px;color:var(--orange);margin-top:10px;">⚠ Le foto di questa indagine non sono state salvate (spazio esaurito sul dispositivo).</div>' : ''}
     </div>
     ${r.snapshot ? `
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <button onclick="continueFromRecent('${r.id}')"
-        style="width:100%;padding:14px;background:var(--teal);color:#000;border:none;border-radius:var(--radius);font-size:14px;font-weight:700;cursor:pointer;">
-        ✏️ Continua / Modifica indagine
-      </button>
-      <button onclick="generateFromRecent('${r.id}')"
-        style="width:100%;padding:14px;background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;">
-        📄 Genera / Apri report PDF
-      </button>
-    </div>` : `
-    <div style="font-size:13px;color:var(--muted);text-align:center;padding:20px;background:var(--bg3);border-radius:var(--radius);">
-      ⚠ I dati completi di questo intervento non sono disponibili su questo dispositivo.<br><br>
-      <span style="font-size:11px;">Le foto non vengono salvate nello storico per motivi di spazio. Puoi rigenerare il report se i dati sono ancora in memoria.</span>
-    </div>`}
+    <button onclick="continueFromRecent('${r.id}')" style="width:100%;padding:14px;background:var(--teal);color:#000;border:none;border-radius:var(--radius);font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;">✏️ Continua / Modifica indagine</button>
+    <button onclick="reportFromRecent('${r.id}')" style="width:100%;padding:14px;background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;">📄 Apri / Rigenera report PDF</button>
+    <button onclick="deleteRecent('${r.id}')" style="width:100%;padding:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;cursor:pointer;">🗑 Elimina dallo storico</button>`
+    : '<div style="font-size:13px;color:var(--muted);text-align:center;padding:20px;">I dati completi di questa indagine non sono disponibili.</div>'}
   `;
+  goScreen('screen-recent-detail');
 }
 
-function continueFromRecent(id) {
-  let recents = [];
-  try { recents = JSON.parse(localStorage.getItem(RECENTS_KEY) || '[]'); } catch(e) {}
-  const r = recents.find(x => String(x.id) === String(id));
-  if (!r || !r.snapshot) { showToast('Dati non disponibili'); return; }
+function restoreFromRecent(id) {
+  const r = readRecents().find(x => String(x.id) === String(id));
+  if (!r || !r.snapshot) { showToast('Dati non disponibili'); return false; }
   const s = r.snapshot;
   currentType = s.currentType || 'termografia';
   zones = s.zones || [];
@@ -1541,47 +1267,57 @@ function continueFromRecent(id) {
   zoneSubpoints = s.zoneSubpoints || {};
   allPhotos = s.allPhotos || {};
   intervention = s.intervention || {};
+  intervention.recentId = r.id;
   timerSeconds = s.timerSeconds || 0;
+  return true;
+}
+
+function continueFromRecent(id) {
+  if (!restoreFromRecent(id)) return;
   const typeLabels = { termografia:'TERMOGRAFIA', infiltrazioni:'DIAGNOSTICA INFILTRAZIONI', perdite:'RICERCA PERDITE IMPIANTI', videoispezione:'VIDEOISPEZIONE CONDOTTE', mappatura:'MAPPATURA IMPIANTI' };
-  document.getElementById('fieldClientName').textContent = intervention.client || 'Intervento';
-  document.getElementById('fieldTypeBadge').textContent = '⚡ ' + (typeLabels[currentType] || currentType);
-  document.getElementById('fieldClientDisplay').textContent = intervention.client || '—';
-  document.getElementById('fieldTypeDisplay').textContent = typeLabels[currentType] || currentType;
-  document.getElementById('fieldAddressDisplay').textContent = intervention.address || '—';
-  document.getElementById('fieldWeatherDisplay').textContent = intervention.weather || '—';
+  const _s = (i, v) => { const el = document.getElementById(i); if (el) el.textContent = v; };
+  _s('fieldClientName', intervention.client || 'Intervento');
+  _s('fieldTypeBadge', '⚡ ' + (typeLabels[currentType] || currentType));
+  _s('fieldClientDisplay', intervention.client || '—');
+  _s('fieldTypeDisplay', typeLabels[currentType] || currentType);
+  _s('fieldAddressDisplay', intervention.address || '—');
+  _s('fieldWeatherDisplay', intervention.weather || '—');
+  if (timerInterval) clearInterval(timerInterval);
   timerStart = Date.now() - (timerSeconds * 1000);
   timerInterval = setInterval(() => {
     timerSeconds = Math.floor((Date.now() - timerStart) / 1000);
     const h = String(Math.floor(timerSeconds / 3600)).padStart(2,'0');
     const m = String(Math.floor((timerSeconds % 3600) / 60)).padStart(2,'0');
     const sec = String(timerSeconds % 60).padStart(2,'0');
-    document.getElementById('timerDisplay').textContent = h + ':' + m + ':' + sec;
+    const t = document.getElementById('timerDisplay'); if (t) t.textContent = h + ':' + m + ':' + sec;
   }, 1000);
+  saveState();
   renderZones();
   goScreen('screen-field');
-  showToast('✦ Intervento riaperto');
+  showToast('✦ Indagine riaperta');
 }
 
-let showingAllRecents = false;
-function toggleAllRecents() {
-  showingAllRecents = !showingAllRecents;
-  loadRecents(showingAllRecents);
-}
-
-function generateFromRecent(id) {
-  let recents = [];
-  try { recents = JSON.parse(localStorage.getItem(RECENTS_KEY) || '[]'); } catch(e) {}
-  const r = recents.find(x => String(x.id) === String(id));
-  if (!r || !r.snapshot) { showToast('Dati non disponibili'); return; }
-  const s = r.snapshot;
-  currentType = s.currentType || 'termografia'; zones = s.zones || [];
-  zoneNotes = s.zoneNotes || {}; zoneSubpoints = s.zoneSubpoints || {};
-  allPhotos = s.allPhotos || {}; intervention = s.intervention || {};
-  timerSeconds = s.timerSeconds || 0;
+function reportFromRecent(id) {
+  if (!restoreFromRecent(id)) return;
   goToReport();
 }
 
-// ─── NAVIGATION ───────────────────────────
+let deleteRecentPending = null;
+function deleteRecent(id) {
+  if (deleteRecentPending !== id) {
+    deleteRecentPending = id;
+    showToast('Tocca di nuovo per eliminare');
+    setTimeout(() => { if (deleteRecentPending === id) deleteRecentPending = null; }, 3000);
+    return;
+  }
+  deleteRecentPending = null;
+  writeRecents(readRecents().filter(x => String(x.id) !== String(id)));
+  showToast('Eliminata');
+  goScreen('screen-home');
+}
+// ===== FINE: RECENTI =====
+
+// ===== INIZIO: NAVIGAZIONE E BANNER =====
 function goScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -1589,7 +1325,7 @@ function goScreen(id) {
   if (id === 'screen-home') {
     if (intervention && intervention.client) saveState();
     checkResumeBanner();
-    loadRecents();
+    renderRecents();
   }
   if (id === 'screen-step2' || id === 'screen-step3') {
     setTimeout(restoreDraftFields, 50);
@@ -1697,13 +1433,15 @@ function clearAll() {
   zoneSubpoints = {};
   locationPhotos = [];
   document.getElementById('resumeBanner').style.display = 'none';
-  loadRecents();
+  renderRecents();
   showToast('✓ Cancellato');
 }
 
 function confirmClearSave() { clearAll(); }
 
-// ─── BACKUP AUTOMATICO ────────────────────
+// ===== FINE: NAVIGAZIONE E BANNER =====
+
+// ===== INIZIO: BACKUP AUTOMATICO =====
 function autoBackup() {
   // Salva una copia di emergenza ogni 30 secondi
   try {
@@ -1741,8 +1479,16 @@ function newIntervention() {
   goScreen('screen-new');
 }
 
-// ─── STEP NAVIGATION ──────────────────────
+// ===== FINE: BACKUP AUTOMATICO =====
+
+// ===== INIZIO: STEP 1-2-3 =====
 function goStep2() {
+  const client = document.getElementById('clientInput').value;
+  const address = document.getElementById('addressInput').value;
+  if (!client.trim() && !document.getElementById('committente').value.trim()) {
+    showToast('⚠ Inserisci almeno il cliente o il committente'); return;
+  }
+  if (!address.trim()) { showToast('⚠ Inserisci l\'indirizzo'); return; }
   saveDraft();
   goScreen('screen-step2');
 }
@@ -1752,16 +1498,21 @@ function goStep3() {
   customEquip = [];
   const db = EQUIP_DB[currentType] || [];
   db.forEach(e => { selectedEquip[e.id] = e.checked; });
+
   document.getElementById('equipTypeLabel').textContent =
     { termografia:'termografia', infiltrazioni:'diagnostica infiltrazioni', perdite:'ricerca perdite impianti', videoispezione:'videoispezione condotte', mappatura:'mappatura impianti' }[currentType];
+
   document.getElementById('thermoParams').style.display = currentType === 'termografia' ? 'block' : 'none';
   document.getElementById('gasParams').style.display = ['perdite','infiltrazioni'].includes(currentType) ? 'block' : 'none';
+
   saveDraft();
   renderEquip();
   goScreen('screen-step3');
 }
 
-// ─── RENDER EQUIPMENT ─────────────────────
+// ===== FINE: STEP 1-2-3 =====
+
+// ===== INIZIO: ATTREZZATURE (RENDER) =====
 function renderEquip() {
   const container = document.getElementById('equipContainer');
   container.innerHTML = '';
@@ -1798,7 +1549,9 @@ function addCustomEquip() {
   renderEquip();
 }
 
-// ─── LOCATION PHOTOS ──────────────────────
+// ===== FINE: ATTREZZATURE (RENDER) =====
+
+// ===== INIZIO: FOTO POSIZIONE =====
 function handleLocationPhotos(e) {
   Array.from(e.target.files).forEach(file => {
     const reader = new FileReader();
@@ -1828,7 +1581,9 @@ function renderLocationPhotos() {
   strip.appendChild(addBtn);
 }
 
-// ─── MAPS LINKS ───────────────────────────
+// ===== FINE: FOTO POSIZIONE =====
+
+// ===== INIZIO: LINK MAPS =====
 function openMaps() {
   const address = document.getElementById('addressInput').value || '';
   const url = 'https://maps.google.com/?q=' + encodeURIComponent(address);
@@ -1843,7 +1598,9 @@ function openEarth() {
   showToast('📷 Fai screenshot e caricalo qui');
 }
 
-// ─── AI CONTEXT ───────────────────────────
+// ===== FINE: LINK MAPS =====
+
+// ===== INIZIO: AI CONTESTO =====
 async function genContextAI() {
   const problem = document.getElementById('problemInput').value;
   const buildType = document.getElementById('buildTypeInput').value;
@@ -1878,7 +1635,9 @@ function goScreen_REMOVE_THIS(id) {
   // rimosso - duplicato
 }
 
-// ─── HOME DATE ────────────────────────────
+// ===== FINE: AI CONTESTO =====
+
+// ===== INIZIO: HOME DATA =====
 const days = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
 const months = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
 const now = new Date();
@@ -1887,9 +1646,11 @@ document.getElementById('homeDate').textContent =
 
 // Controlla se c'è un intervento salvato all'avvio
 checkResumeBanner();
-loadRecents();
+renderRecents();
 
-// ─── TYPE SELECTOR ────────────────────────
+// ===== FINE: HOME DATA =====
+
+// ===== INIZIO: TIPO INTERVENTO =====
 function selectType(el, type) {
   document.querySelectorAll('.type-opt').forEach(o => o.classList.remove('selected'));
   el.classList.add('selected');
@@ -1897,17 +1658,19 @@ function selectType(el, type) {
   saveDraft();
 }
 
-// ─── START INTERVENTION ───────────────────
+// ===== FINE: TIPO INTERVENTO =====
+
+// ===== INIZIO: AVVIA INTERVENTO =====
 function startIntervention() {
-  const client = document.getElementById('clientInput')?.value || 'Cliente';
-  const address = document.getElementById('addressInput')?.value || 'Indirizzo non specificato';
-  const committente = document.getElementById('committente')?.value || '';
-  const noteIniziali = document.getElementById('noteIniziali')?.value || '';
+  const client = document.getElementById('clientInput').value || 'Cliente';
+  const address = document.getElementById('addressInput').value || 'Indirizzo non specificato';
+  const committente = document.getElementById('committente').value || '';
+  const noteIniziali = document.getElementById('noteIniziali').value || '';
   const weather = '';
   const temp = '';
-  const buildType = document.getElementById('buildTypeInput')?.value || '';
-  const problem = document.getElementById('problemInput')?.value || '';
-  const context = document.getElementById('contextInput')?.value || '';
+  const buildType = document.getElementById('buildTypeInput').value;
+  const problem = document.getElementById('problemInput').value;
+  const context = document.getElementById('contextInput').value;
 
   // Collect selected equipment
   const db = [...(EQUIP_DB[currentType] || []), ...customEquip];
@@ -1921,12 +1684,11 @@ function startIntervention() {
 
   const typeLabels = { termografia: 'TERMOGRAFIA', infiltrazioni: 'DIAGNOSTICA INFILTRAZIONI', perdite: 'RICERCA PERDITE IMPIANTI', videoispezione: 'VIDEOISPEZIONE CONDOTTE', mappatura: 'MAPPATURA IMPIANTI' };
 
-  const _s = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
-  _s('fieldClientName', client);
-  _s('fieldTypeBadge', '⚡ ' + typeLabels[currentType]);
-  _s('fieldClientDisplay', client);
-  _s('fieldTypeDisplay', typeLabels[currentType]);
-  _s('fieldAddressDisplay', address);
+  document.getElementById('fieldClientName').textContent = client;
+  document.getElementById('fieldTypeBadge').textContent = '⚡ ' + typeLabels[currentType];
+  document.getElementById('fieldClientDisplay').textContent = client;
+  document.getElementById('fieldTypeDisplay').textContent = typeLabels[currentType];
+  document.getElementById('fieldAddressDisplay').textContent = address;
   document.getElementById('fieldWeatherDisplay').textContent = weather;
 
   zones = [...DEFAULT_ZONES[currentType]].map(n => n);
@@ -1946,7 +1708,9 @@ function startIntervention() {
   goScreen('screen-field');
 }
 
-// ─── TIMER ────────────────────────────────
+// ===== FINE: AVVIA INTERVENTO =====
+
+// ===== INIZIO: TIMER =====
 function startTimer() {
   timerStart = Date.now();
   timerSeconds = 0;
@@ -1966,7 +1730,9 @@ function stopTimer() {
   return h + ':' + m;
 }
 
-// ─── ZONES ────────────────────────────────
+// ===== FINE: TIMER =====
+
+// ===== INIZIO: ZONE E SOTTO-PUNTI =====
 // zoneSubpoints[zoneIdx] = [ {name, note, photos: [base64...]}, ... ]
 let zoneSubpoints = {};
 
@@ -2174,7 +1940,9 @@ function addZone() {
   }, 50);
 }
 
-// ─── PHOTOS ───────────────────────────────
+// ===== FINE: ZONE E SOTTO-PUNTI =====
+
+// ===== INIZIO: FOTO ZONE =====
 function addPhotoToZone(zoneIdx) {
   pendingZoneIdx = zoneIdx;
   document.getElementById('fileInput').click();
@@ -2236,7 +2004,9 @@ function deletePhoto(zoneIdx, photoIdx) {
   }, 50);
 }
 
-// ─── AI ZONE ──────────────────────────────
+// ===== FINE: FOTO ZONE =====
+
+// ===== INIZIO: AI ZONA =====
 async function genZoneAI(i) {
   const btn = document.getElementById('aibtn-' + i);
   if (!btn) return;
@@ -2271,37 +2041,24 @@ async function genZoneAI(i) {
   }
 }
 
-// ─── FINISH ───────────────────────────────
+// ===== FINE: AI ZONA =====
+
+// ===== INIZIO: CONCLUDI E GENERAZIONE REPORT =====
 function finishIntervention() {
   const duration = stopTimer();
   const totalPhotos = Object.values(allPhotos).reduce((sum, arr) => sum + arr.length, 0);
 
-  // Vai subito alla schermata sommario
+  // Salva nei recenti come bozza
+  saveToRecents('bozza');
+  clearSave();
+
   document.getElementById('summaryClient').textContent = intervention.client || 'Intervento completato';
   document.getElementById('summaryAddress').textContent = intervention.address || '';
   document.getElementById('summaryTime').textContent = duration;
   document.getElementById('summaryPhotos').textContent = totalPhotos;
   document.getElementById('summaryZones').textContent = zones.length;
+
   goScreen('screen-summary');
-
-  // Salva in background (non blocca la UI)
-  saveToRecents('bozza');
-  clearSave();
-  const supId = intervention.supabaseId || ('int_' + Date.now());
-  if (!intervention.supabaseId) intervention.supabaseId = supId;
-
-  setTimeout(async () => {
-    try {
-      showToast('⟳ Salvataggio in corso...');
-      await uploadAllPhotos(supId);
-      const ok = await saveToSupabase('bozza');
-      if (ok) showToast('✓ Salvato su cloud');
-      else showToast('⚠ Salvato in locale');
-    } catch(e) {
-      console.warn('Background save failed:', e);
-      showToast('⚠ Salvato in locale');
-    }
-  }, 500);
 }
 
 function goToReport() {
@@ -2328,8 +2085,7 @@ function goToReport() {
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', sans-serif; background: #f0f0ee; padding: 20px; }
-.doc { background: white; max-width: 100%; margin: 0; padding: 12px 10px; }
-@media (min-width: 600px) { .doc { max-width: 800px; margin: 0 auto; padding: 32px; border-radius: 12px; box-shadow: 0 2px 20px rgba(0,0,0,0.08); } }
+.doc { background: white; max-width: 800px; margin: 0 auto; padding: 40px; border-radius: 12px; box-shadow: 0 2px 20px rgba(0,0,0,0.08); }
 .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 2px solid #111; }
 .logo-area .logo-name { font-size: 22px; font-weight: 900; color: #111; }
 .logo-area .logo-claim { font-size: 10px; color: #999; letter-spacing: 2px; margin-top: 2px; }
@@ -2346,9 +2102,8 @@ h1 { font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacin
 .zone-block { margin-bottom: 18px; background: #fafaf8; border-radius: 8px; padding: 14px; border-left: 3px solid #111; page-break-inside: avoid; }
 .zone-name { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
 .zone-note { font-size: 13px; color: #444; line-height: 1.7; }
-.photo-hero { width: 100%; height: 240px; object-fit: cover; border-radius: 8px; border: 1px solid #eee; display: block; margin-top: 8px; page-break-inside: avoid; }
-.photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; page-break-inside: avoid; }
-.photo-grid img { width: 100%; height: 80px; object-fit: cover; border-radius: 5px; border: 1px solid #eee; display: block; }
+.photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; page-break-inside: avoid; }
+.photo-grid img { width: 100%; height: 200px; object-fit: cover; border-radius: 6px; border: 1px solid #eee; display: block; }
 @media print {
   body { background: white; padding: 0; }
   .doc { box-shadow: none; border-radius: 0; padding: 20px; }
@@ -2471,25 +2226,21 @@ h1 { font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacin
       const subpointsHtml = subpoints.map((sp, si) => {
         const spPhotos = (sp.photos || []);
         if (!sp.note && !spPhotos.length && !sp.name) return '';
-        const spHero = spPhotos.length > 0 ? `<img src="${spPhotos[0]}" style="width:100%;height:240px;object-fit:cover;border-radius:6px;border:1px solid #eee;display:block;margin-top:8px;" alt="foto principale">` : '';
-        const spGrid = spPhotos.length > 1 ? `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px;">${spPhotos.slice(1).map(src => `<img src="${src}" style="width:100%;height:120px;object-fit:cover;border-radius:4px;border:1px solid #eee;display:block;" alt="foto">`).join('')}</div>` : '';
         return `<div style="margin-top:12px;padding:12px;background:#f5f5f3;border-radius:6px;border-left:2px solid #ccc;">
-          ${sp.name ? `<div style="font-size:12px;font-weight:700;color:#333;margin-bottom:6px;"><span style="color:#1D9E75;">●</span> ${sp.name}</div>` : ''}
-          ${spHero}
-          ${sp.note ? `<div style="font-size:12px;color:#444;line-height:1.7;margin:8px 0;">${sp.note}</div>` : ''}
-          ${spGrid}
+          ${sp.name ? `<div style="font-size:12px;font-weight:700;color:#333;margin-bottom:6px;">
+            <span style="color:#1D9E75;">●</span> ${sp.name}
+          </div>` : ''}
+          ${sp.note ? `<div style="font-size:12px;color:#444;line-height:1.7;margin-bottom:8px;">${sp.note}</div>` : ''}
+          ${spPhotos.length ? `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;">
+            ${spPhotos.map(src => `<img src="${src}" style="width:100%;height:160px;object-fit:cover;border-radius:4px;border:1px solid #eee;display:block;" alt="foto">`).join('')}
+          </div>` : ''}
         </div>`;
       }).join('');
 
-      // Hero photo (first) + grid for rest + note
-      const heroPhoto = photos.length > 0 ? `<img src="${photos[0]}" class="photo-hero" alt="foto principale">` : '';
-      const gridPhotos = photos.length > 1 ? `<div class="photo-grid">${photos.slice(1).map(src => `<img src="${src}" alt="foto">`).join('')}</div>` : '';
-
       return `<div class="zone-block">
         <div class="zone-name">${name}</div>
-        ${heroPhoto}
-        ${note ? `<div class="zone-note" id="zone-text-${i}" style="margin-top:10px;">${note}</div>` : `<div class="zone-note" id="zone-text-${i}" class="ai-loading" style="margin-top:10px;">⟳ AI in corso...</div>`}
-        ${gridPhotos}
+        ${note ? `<div class="zone-note" id="zone-text-${i}">${note}</div>` : `<div class="zone-note" id="zone-text-${i}" class="ai-loading">⟳ AI in corso...</div>`}
+        ${photos.length ? `<div class="photo-grid">${photos.map(src => `<img src="${src}" alt="foto">`).join('')}</div>` : ''}
         ${subpointsHtml}
       </div>`;
     }).join('')}
@@ -2727,7 +2478,6 @@ generateReport();
 
   // Aggiorna stato nei recenti a "done"
   saveToRecents('done');
-  saveToSupabase('done');
 
   // Inietta il report dentro screen-report (funziona su iPhone/Safari/Claude Code)
   const reportDiv = document.getElementById('reportContent');
@@ -2752,7 +2502,9 @@ generateReport();
   }), 400);
 }
 
-// ─── TOAST ────────────────────────────────
+// ===== FINE: CONCLUDI E GENERAZIONE REPORT =====
+
+// ===== INIZIO: TOAST =====
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -2760,7 +2512,9 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// ─── PDF E CONDIVISIONE ───────────────────
+// ===== FINE: TOAST =====
+
+// ===== INIZIO: PDF E CONDIVISIONE =====
 function savePDF() {
   // Su iPhone usa Web Share API o istruzione guidata
   if (navigator.share) {
@@ -2789,15 +2543,18 @@ function savePDF() {
   }
 }
 
-function shareReportMain() {
-  // Show back button
-  const backBtn = document.getElementById('reportBackBtn');
-  if (backBtn) backBtn.style.display = 'block';
-  // Share
-  savePDF();
+function shareReport() {
+  // Web Share API — funziona su iPhone con Safari
+  if (navigator.share) {
+    navigator.share({
+      title: 'Report Termoflux — ' + (intervention.client || ''),
+      text: 'Relazione tecnica ' + (intervention.address || '') + ' del ' + new Date().toLocaleDateString('it-IT'),
+      url: window.location.href
+    }).catch(() => savePDF());
+  } else {
+    savePDF();
+  }
 }
-
-function shareReport() { shareReportMain(); }
 
 function shareWhatsApp() {
   const text = encodeURIComponent(
@@ -2829,7 +2586,9 @@ function refreshReport() {
   goToReport();
 }
 
-// ─── GENERA TESTI AI NEL REPORT ───────────
+// ===== FINE: PDF E CONDIVISIONE =====
+
+// ===== INIZIO: AI REPORT =====
 async function generateReportAI(data) {
   const typeNames = {
     termografia: 'termografia edile',
@@ -2881,5 +2640,6 @@ async function generateReportAI(data) {
   }
 }
 </script>
+
 
 </body></html>
